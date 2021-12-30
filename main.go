@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"time"
@@ -14,7 +15,15 @@ func main() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		linesToWrite := "MES=Hi man"
+		err := ioutil.WriteFile(".env", []byte(linesToWrite), 0777)
+		if err != nil {
+			log.Fatal(err)
+		}
+		loadErr := godotenv.Load()
+		if loadErr != nil {
+			log.Fatal("Error loading .env file")
+		}
 	}
 
 	app := fiber.New()
@@ -25,6 +34,10 @@ func main() {
 
 	app.Get("/env", func(c *fiber.Ctx) error {
 		return c.SendString("Env var is: " + os.Getenv("MES"))
+	})
+
+	app.Get("/port", func(c *fiber.Ctx) error {
+		return c.SendString("PORT is: " + os.Getenv("PORT"))
 	})
 
 	app.Get("/:name", func(c *fiber.Ctx) error {
