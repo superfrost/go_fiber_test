@@ -17,6 +17,8 @@ func main() {
 
 	app := fiber.New()
 
+	app.Static("/", "./public")
+
 	routes.Setup(app)
 
 	app.Listen(":" + os.Getenv("PORT"))

@@ -2,6 +2,29 @@
 
 [fiber](https://github.com/gofiber/fiber)
 
+## Install go
+
+```sh
+wget https://go.dev/dl/go1.17.5.linux-amd64.tar.gz  (linux)
+wget https://go.dev/dl/go1.17.5.linux-arm64.tar.gz  (raspbery pi)
+```
+
+```sh
+sudo tar -C /usr/local -xzf go1.17.5.linux-amd64.tar.gz
+```
+
+Add to $HOME/.profile
+```sh
+sudo nano $HOME/.profile
+```
+```
+export  PATH=$PATH:/usr/local/go/bin
+```
+
+```sh
+source ~/.profile
+```
+
 ## Build options
 
 `go tool dist list` to list possible platforms
