@@ -79,5 +79,56 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	return c.JSON(tokenString)
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    tokenString,
+		Expires:  time.Now().Add(time.Hour * 24),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	return c.JSON(fiber.Map{
+		"message": "success",
+	})
+}
+
+func User(c *fiber.Ctx) error {
+	cookieJWT := c.Cookies("jwt")
+
+	token, err := jwt.ParseWithClaims(cookieJWT, &jwt.RegisteredClaims{}, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET_JWT_KEY")), nil
+	})
+
+	if err != nil {
+		c.Status(fiber.StatusUnauthorized)
+		return c.JSON(fiber.Map{
+			"message": "unauthenticated",
+		})
+	}
+
+	claims := token.Claims.(*jwt.RegisteredClaims)
+
+	var user models.User
+
+	database.DB.Where("id = ?", claims.Issuer).First(&user)
+
+	return c.JSON(user)
+}
+
+func Logout(c *fiber.Ctx) error {
+
+	cookie := fiber.Cookie{
+		Name:     "jwt",
+		Value:    "",
+		Expires:  time.Unix(0, 0),
+		HTTPOnly: true,
+	}
+
+	c.Cookie(&cookie)
+
+	c.SendStatus(fiber.StatusAccepted)
+	return c.JSON(fiber.Map{
+		"message": "logout success",
+	})
 }
